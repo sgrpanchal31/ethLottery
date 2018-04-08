@@ -6,15 +6,15 @@ contract Lottery {
         uint tokens;
         bytes32 gamblersGuess;
     }
-    address[] public addressIndices;
-    address[] public winnerIndices;
+    
+    address[] private addressIndices;
+    address[] private winnerIndices;
+    
     mapping (address => gambler) _accounts;
     
     bool gameStatus = true;
-    
     address owner;
-
-    bytes32 constant private winningGuess;
+    bytes32 private winningGuess;
     
     modifier onlyOwner() {
         require(msg.sender == owner);
@@ -35,13 +35,14 @@ contract Lottery {
     
     function makeGuess(uint guess) public{
         require (gameStatus == true);
+        require(guess > 0);
         require(_accounts[msg.sender].tokens>0);
         _accounts[msg.sender].tokens -= 1;
         _accounts[msg.sender].gamblersGuess = sha3(uint(guess));
     }
     
     function closeGame() onlyOwner returns(bool){
-        // winnerAddress();
+        winnerAddress();
         return gameStatus = false;
     }
     
@@ -52,7 +53,12 @@ contract Lottery {
                 winnerIndices.push(addressIndices[i]);
             }
         }
-        
+    }
+    function getPrice() public returns(bool){
+        require(msg.sender == winnerIndices[0]);
+        msg.sender.transfer(this.balance/2);
+        owner.transfer(this.balance);
+        return true;
     }
     
     function getTokens() public returns (uint) {
@@ -62,27 +68,3 @@ contract Lottery {
         return _accounts[msg.sender].gamblersGuess;
     }
 }
-
-// contract EtherTransferFrom {
-    
-//     Lottery private _instance;
-    
-//     function EtherTransferFrom() public {
-//         // _instance = EtherTransferTo(address(this));
-//         _instance = new Lottery();
-//     }
-    
-//     function getBalance() public returns (uint) {
-//         return address(this).balance;
-//     }
-    
-//     function getBalanceOfInstance() public returns (uint) {
-//         //return address(_instance).balance;
-//         // return _instance.getBalance();
-//     }
-    
-//     function () public payable {
-//         //msg.sender.send(msg.value);
-//         address(_instance).send(msg.value);
-//     }
-// }
