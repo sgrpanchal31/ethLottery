@@ -21,7 +21,7 @@ contract Lottery {
         _;
     }
     
-    function Lottery(){
+    function Lottery() public{
         owner = msg.sender;
         winningGuess = sha3(uint(1000));
     }
@@ -41,14 +41,14 @@ contract Lottery {
         _accounts[msg.sender].gamblersGuess = sha3(uint(guess));
     }
     
-    function closeGame() onlyOwner returns(bool){
+    function closeGame() public onlyOwner returns(bool){
         winnerAddress();
         return gameStatus = false;
     }
     
     function winnerAddress() private {
         uint arrayLength = addressIndices.length;
-        for (uint i=0; i<arrayLength; i++){
+        for (uint i = 0; i < arrayLength; i++){
             if(_accounts[addressIndices[i]].gamblersGuess == winningGuess){
                 winnerIndices.push(addressIndices[i]);
             }
