@@ -2,12 +2,13 @@
   "name": "ethlottery",
   "version": "1.0.0",
   "description": "Default project for Truffle: example contracts, migrations and tests",
-  "main": "truffle.js",
+  "main": "app.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "lite-server"
   },
   "repository": {
     "type": "git",
