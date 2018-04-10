@@ -30,33 +30,10 @@ App = {
       // Connect provider to interact with contract
       App.contracts.Lottery.setProvider(App.web3Provider);
 
-      App.listenForEvents();
-
       return App.render();
     });
   },
-  listenForEvents: function() {
-    App.contracts.Lottery.deployed().then(function(instance) {
-      // Restart Chrome if you are unable to receive this event
-      // This is a known issue with Metamask
-      // https://github.com/MetaMask/metamask-extension/issues/2393
-      instance.closeGame({}, {
-        fromBlock: 0,
-        toBlock: 'latest'
-      }).watch(function(error, event) {
-        console.log("event triggered", event)
-        // Reload when a new vote is recorded
-        App.render();
-      });
-    });
-  },
-  // balance: function(acct){
-  //   return web3.eth.getBalance(acct, function(err){
-  //     if(err){
-  //       console.log(err);
-  //     }
-  //   }), 'ether').toNumber();
-  // },
+
 
 
   render: function(){
@@ -78,8 +55,37 @@ App = {
       }
     });
 
-    return App.bindEvents();
+    
+    App.contracts.Lottery.deployed().then(function(instance) {
+      console.log("instance created");
+      Lottery = instance;
+      return Lottery.getStatus({from: App.account});
+    }).then(function(res){
+      console.log(res);
+      if(res){
+        $('#gameStatus').show();
+      } else{
+        $('#gameStatus').hide();
+        $('#getPrice').show();
+      }
+    }).catch(function(e){
+      console.log(e);
+    });
 
+    App.contracts.Lottery.deployed().then(function(instance) {
+      console.log("get owner");
+      Lottery = instance;
+      return Lottery.getOwner({from: App.account});
+    }).then(function(owner){
+      console.log(owner);
+      if( App.account == owner){
+        $('#closeGame').show();
+      }
+    }).catch(function(e){
+      console.log(e);
+    });
+
+    return App.bindEvents();
 
   },
   bindEvents: function() {
@@ -91,6 +97,12 @@ App = {
     $(document).on('click', '#sendBet', function(){
       var _guess = parseInt($("#guess").val());
       App.makeGuess(_guess);
+    });
+    $(document).on('click', '#getPrice', function(){
+      App.getPrice();
+    });
+    $(document).on('click', '#closeGame', function(){
+      App.closeGame();
     });
   },
   sendEther: function(_value) {
@@ -126,6 +138,38 @@ App = {
       console.error(err.message);
     });
 
+  },
+  getPrice: function(){
+    $('#getPrice').addClass("disabled");
+    App.contracts.Lottery.deployed().then(function(instance) {
+      console.log("getprice");
+      Lottery = instance;
+      return Lottery.getPrice({from: App.account});
+    }).then(function(res){
+      console.log(res);
+      if(res){
+        $('#gameStatus').html('Congrats you won'+ res+' ether');
+      }
+    }).catch(function(e){
+      console.log(e);
+      $('#getPrice').removeClass("disabled");
+    });
+  },
+  closeGame: function(){
+    $('#closeGame').addClass("disabled");
+    App.contracts.Lottery.deployed().then(function(instance) {
+      console.log("closegame");
+      Lottery = instance;
+      return Lottery.closeGame({from: App.account});
+    }).then(function(price){
+      console.log(res);
+      if(res){
+        $('#gameStatus').html('Game has been closed');
+      }
+    }).catch(function(e){
+      console.log(e);
+      $('#closeGame').removeClass("disabled");
+    });
   }
 
 };

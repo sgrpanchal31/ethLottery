@@ -13,7 +13,7 @@ contract Lottery {
     mapping (address => gambler) _accounts;
     
     bool gameStatus = true;
-    address owner;
+    address private owner;
     bytes32 private winningGuess;
     
     modifier onlyOwner() {
@@ -54,17 +54,24 @@ contract Lottery {
             }
         }
     }
-    function getPrice() public returns(bool){
+    function getPrice() public returns(uint){
+        uint price = this.balance;
         require(msg.sender == winnerIndices[0]);
         msg.sender.transfer(this.balance/2);
         owner.transfer(this.balance);
-        return true;
+        return price/2;
     }
-    
-    function getTokens() public returns (uint) {
+    //==GETTERS==
+    function getTokens() public constant returns (uint) {
         return _accounts[msg.sender].tokens;
     }
-    function getGuess() public returns (bytes32) {
+    function getGuess() public constant returns (bytes32) {
         return _accounts[msg.sender].gamblersGuess;
     }
+    function getStatus() public constant returns (bool ) {
+        return gameStatus;
+    }  
+    function getOwner() public constant returns (address ) {
+        return owner;
+    } 
 }
