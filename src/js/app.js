@@ -30,26 +30,26 @@ App = {
       // Connect provider to interact with contract
       App.contracts.Lottery.setProvider(App.web3Provider);
 
-      // App.listenForEvents();
+      App.listenForEvents();
 
       return App.render();
     });
   },
-  // listenForEvents: function() {
-  //   App.contracts.Lottery.deployed().then(function(instance) {
-  //     // Restart Chrome if you are unable to receive this event
-  //     // This is a known issue with Metamask
-  //     // https://github.com/MetaMask/metamask-extension/issues/2393
-  //     instance.votedEvent({}, {
-  //       fromBlock: 0,
-  //       toBlock: 'latest'
-  //     }).watch(function(error, event) {
-  //       console.log("event triggered", event)
-  //       // Reload when a new vote is recorded
-  //       App.render();
-  //     });
-  //   });
-  // },
+  listenForEvents: function() {
+    App.contracts.Lottery.deployed().then(function(instance) {
+      // Restart Chrome if you are unable to receive this event
+      // This is a known issue with Metamask
+      // https://github.com/MetaMask/metamask-extension/issues/2393
+      instance.closeGame({}, {
+        fromBlock: 0,
+        toBlock: 'latest'
+      }).watch(function(error, event) {
+        console.log("event triggered", event)
+        // Reload when a new vote is recorded
+        App.render();
+      });
+    });
+  },
   // balance: function(acct){
   //   return web3.eth.getBalance(acct, function(err){
   //     if(err){
