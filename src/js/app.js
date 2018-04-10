@@ -75,13 +75,6 @@ App = {
         console.log('hii');
         $("#accountAddress").html("Your Account: "+ account);
         console.log(App.account);
-        // web3.eth.getBalance(App.account, function(err, result) {
-        //   if(!err){
-        //     console.log(web3.utils.fromWei(result,'ether'));
-        //   } else{
-        //     console.log(err);
-        //   }
-        // });
       }
     });
 
@@ -95,52 +88,44 @@ App = {
       var _amount = parseInt($("#amountSend").val());
       App.sendEther(_amount);
     });
-    
+    $(document).on('click', '#sendBet', function(){
+      var _guess = parseInt($("#guess").val());
+      App.makeGuess(_guess);
+    });
   },
   sendEther: function(_value) {
     console.log("sendEther");
-    // Enter details to send transaction;
-    // web3.eth.getAccounts(function(error, accounts) {
-    //   if (error) {
-    //     console.log(error);
-    //   }else{
-    //     console.log(accounts);
-    //   }
 
-      var account = App.account;
+    if(_value != 1) {
+      alert("The amout in the version should be 1 ether");
+      return;
+    }
+    var account = App.account;
 
-      App.contracts.Lottery.deployed().then(function(instance) {
-        console.log("sending...");
-        // return instance.sendTransaction({ // Something like this?!
-        //   from: account,
-        //   gas: 5000,
-        //   value: _value
-        // }).then(function(result) {
-        //   console.log(result);
-        //   // return App.UpdateContractValues();
-        // }).catch(function(err) {
-        //   console.log(err.message);
-        // });
-        instance.send(web3.toWei(1, "ether")).then(function(result) {
-          console.log(result.tx);
-        }).catch(function(err){
-          console.log(err.message);
-        });
-        // var _gas;
-        // instance.setValue.estimateGas(5).then(function(result) {
-        //   _gas = result;
-        //   console.log(_gas);
-        // });
-        // console.log(`gas: ${_gas}`);
-        // instance.sendTransaction({
-        //   from: account,
-        //   gas: 100000000,
-        //   value: web3.toWei(_value, 'ether')
-        // }).then(function(result) {
-        //   console.log("hello");
-        // });
+    App.contracts.Lottery.deployed().then(function(instance) {
+      console.log("sending...");
+
+      instance.send(web3.toWei(_value, "ether")).then(function(result) {
+        console.log(result.tx);
+        $("#sendBet").removeClass("disabled");
+        $('#guess').prop('disabled',false);
+      }).catch(function(err){
+        console.log(err.message);
       });
-    // });
+    });
+
+  },
+  makeGuess:function(_guess){
+    $("#loader").show();
+    App.contracts.Lottery.deployed().then(function(instance) {
+      return instance.makeGuess(_guess, { from: App.account });
+    }).then(function(result) {
+      $("#loader").hide();
+      $("#gameStatus").show();
+    }).catch(function(err) {
+      console.error(err.message);
+    });
+
   }
 
 };
